@@ -98,7 +98,7 @@ library(RColorBrewer)
 We set our wd to where the root project would be. In this case:
 
 ```{r}
-setwd("~/Dropbox/work/AssistantProfessorUNL/manuscripts/drafts/X.necrophoraPopGen_TGA.08.09.22/GitHub/X_necrophora_pop_gen/")
+setwd("~/Dropbox/work/AssistantProfessorUNL/manuscripts/drafts/X.necrophoraPopGen_TGA.08.09.22/GitHub/X_necrophora_pop_gen/RStudio/")
 ```
 
 # Load the variant calling format file (vcf) from our SNP calling pipelines
@@ -459,12 +459,12 @@ p2 <- p2 + scale_fill_manual(values=c(paste(my_pal, "66", sep = "")))
 p2
 
 
-p2 <- ggplot(my_df, aes(x = LD2, y = LD3, color = Group, fill = Group))
-p2 <- p2 + geom_point(size = 4, shape = 21)
-p2 <- p2 + theme_bw()
-p2 <- p2 + scale_color_manual(values=c(my_pal))
-p2 <- p2 + scale_fill_manual(values=c(paste(my_pal, "66", sep = "")))
-p2
+#p2 <- ggplot(my_df, aes(x = LD2, y = LD3, color = Group, fill = Group))
+#p2 <- p2 + geom_point(size = 4, shape = 21)
+#p2 <- p2 + theme_bw()
+#p2 <- p2 + scale_color_manual(values=c(my_pal))
+#p2 <- p2 + scale_fill_manual(values=c(paste(my_pal, "66", sep = "")))
+#p2
 
 
 
@@ -499,7 +499,7 @@ p3 <- p3 + ylab("Posterior membership probability")
 p3 <- p3 + theme(legend.position='none')
 #p3 <- p3 + scale_color_brewer(palette="Dark2")
 p3 <- p3 + scale_fill_manual(values=c(my_pal))
-p3 <- p3 + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+p3 <- p3 + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 5))
 p3
 
 
@@ -739,7 +739,74 @@ pop.data.subset.2.filtered.Lin <- select(pop.data.subset.2.filtered.Lin, "ID", "
 #gl2fasta(gl.necrophora.subset.2.filtered, method=1, outfile='X.necrophora.153.genomes.filtered.2.dataset.fasta',verbose=3)
 
 
-###Standardized index of association by Lineages
+# Standardized index of association by Lineages
+
+For this, we need the file with the SNPs in LD.
+
+```{r}
+vcf <- read.vcfR("../input/Xylaria_153_genomes.MinQG40.MinDP5.MaxMiss0.7.necrophora.ONLY.recode.mod.singleIDs.recode.vcf")
+
+my_genind <- vcfR2genind(vcf)
+```
+
+You may see a warning that reads (if 175 genotypes file was loaded):
+"Individuals with no scored loci have been removed"
+
+This means that empty genotypes were removed at the moment of conversion to a genind object
+
+Now, lets check the number of individuals in this object:
+
+```{r}
+nInd(my_genind)
+```
+
+As you see, for this particular object (vcf file) we have a total of 147 genotypes, because we have filtered out the individuals with more than 95% missing data (see materials and methods).
+
+The following code block extracts names from our genind to match with values in our metadata file with the ultimate goal of adding strata to our genind and genclone objects.
+
+```{r}
+#Print new names for individuals that remained after conversion
+adegenet::indNames(my_genind)
+
+#Extract labels as vector
+newNames <- as.vector(adegenet::indNames(my_genind))
+
+#Subset those from original pop data
+pop.data2 <- pop.data[pop.data$ID %in% newNames,]
+
+#Add new strata to genind
+strata(my_genind) <- pop.data2
+```
+
+Finally, we add ploidy and we are ready to convert to genclone and run analyses.
+
+```{r}
+#Add ploidy to our genind
+ploidy(my_genind) <- 1
+```
+
+Convert to genclone
+
+```{r}
+#Convert to genclone object
+my_genclone <- poppr::as.genclone(my_genind)
+
+#and we add the ploidy statement again, just in case.
+ploidy(my_genclone) <- 1
+
+# set population to the original known populations
+strata(my_genclone) <- pop.data2
+setPop(my_genclone) <- ~State
+```
+
+Let's filter the dataset for missing loci of over 10%.
+
+```{r}
+my_genclone.filtered <- missingno(my_genclone, type = "loci", cutoff = 0.1, quiet = FALSE, freq = FALSE)
+```
+
+
+
 setPop(my_genclone.filtered) <- ~Hyp_Final
 
 #Lin 1 Standardized index of association
@@ -756,8 +823,8 @@ Lin2.subpop <- popsub(my_genclone.filtered, "Lin2")
 gg3 <- ia(Lin2.subpop, sample = 999)
 
 #Lin 2 Standardized index of association (Clone corrected)
-Lin2.subpop.cloneCorr <- popsub(my_genclone.subset.2.filtered, "Lin2")
-ia(Lin2.subpop.cloneCorr, sample = 999)
+#Lin2.subpop.cloneCorr <- popsub(my_genclone.subset.2.filtered, "Lin2")
+#ia(Lin2.subpop.cloneCorr, sample = 999)
 
 
 #Lin 3 Standardized index of association
@@ -765,8 +832,8 @@ Lin3.subpop <- popsub(my_genclone.filtered, "Lin3")
 gg5 <- ia(Lin3.subpop, sample = 999)
 
 #Lin 3 Standardized index of association (Clone corrected)
-Lin3.subpop.cloneCorr <- popsub(my_genclone.subset.2.filtered, "Lin3")
-ia(Lin3.subpop.cloneCorr, sample = 999)
+#Lin3.subpop.cloneCorr <- popsub(my_genclone.subset.2.filtered, "Lin3")
+#ia(Lin3.subpop.cloneCorr, sample = 999)
 
 
 
