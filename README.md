@@ -1,10 +1,10 @@
 # Population genetics of **_Xylaria necrophora_**, an emerging pathogen of soybean in the southern United States.
 
-### Below is information regarding methods pertinent to the data in this repository. These methods are an excerpt from the manuscript submitted to Phytopathology (December 2022).
+### Below is information regarding methods pertinent to the data in this repository. These methods are an excerpt from the manuscript submitted to .
 
 **Title:**
 
-# Emergence of recombining semi- and fully-clonal lineages of the fungal soybean pathogen **_Xylaria necrophora_** in the southern United States.
+# Emergence of semi and mostly clonal lineages of the soybean pathogen **_Xylaria necrophora_**.
 
 Authors: Teddy Garcia-Aroca<sup>a\*</sup> Jonathan Richards<sup>b</sup>, Jeremy Brown<sup>b</sup>, Paul P. Price<sup>c</sup>, Cheryl P. Andam<sup>d</sup>, and Vinson P. Doyle<sup>b\*</sup>
 
@@ -22,14 +22,13 @@ Teddy Garcia-Aroca: http://orcid.org/0000-0002-7567-4363
 
 Paul “Trey” Price: http://orcid.org/0000-0002-1004-3616
 
-Jonathan K. Richards: 
+Jonathan K. Richards: https://orcid.org/0000-0001-9342-3595
 
-Jeremy Brown: 
-
+Jeremy Brown: https://orcid.org/0000-0002-1447-8633
 
 Cheryl P. Andam: https://orcid.org/0000-0003-4428-0924
 
-Vinson P. Doyle: 0000-0002-2350-782X
+Vinson P. Doyle: https://orcid.org/0000-0002-2350-782X
 
 
 
@@ -37,10 +36,12 @@ Vinson P. Doyle: 0000-0002-2350-782X
 | -----------------------------------------------------|
 |												|
 | 1. [DATASETS](#datasets)                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Metadata](#metadata)                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Raw data](#raw_data)                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[analyses](#analyses)                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[output](#output)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[RStudio](#RStudio)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Metadata](#Metadata)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Input](#Input)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Manuscript](#Manuscript)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Analyses](#Scripts)                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Output](#Output)                      |
 |																			|
 | 2. [INSTRUCTIONS](#instructions)														|
 
@@ -48,22 +49,29 @@ Vinson P. Doyle: 0000-0002-2350-782X
 
 # 1. DATASETS
 
-## metadata
+## RStudio
+
+This folder contains the RStudio code (markdown) and procedure for analyses of population genomics. From loading and filtering vcf files to plotting, and exporting supplementary tables.
+
+## Metadata
 
 In this directory, we provide all datasets and metadata per species/strain.
 
-## raw_data
+## Input
 
 Contains raw data from analyses, including variant calling format (vcf) and alignment files.
 
+## Manuscript
 
-## analyses
+A single file with the latest draft version of the manuscript.
 
-Contains scripts used to parse and summarise data, plotting, and exporting supplementary tables. 
+## Scripts
 
-## output
+Contains scripts used to parse and summarise data from raw sequences (fastq files) to variant calling format files (vcf). 
 
-Contains figures and tables presented in the manuscript submitted to Phytopathology (Dec 2022).
+## Output
+
+Contains figures and tables presented in the manuscript submitted to .
 
 
 # 2. INSTRUCTIONS 
