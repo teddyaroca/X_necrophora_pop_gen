@@ -1,19 +1,19 @@
 ---
-  title: "Population genetic analyses of <i>Xylaria necrophora</i>"
+  title: "Population genomic analyses of <i>Xylaria necrophora</i> from southern USA"
 author: "Teddy Garcia-Aroca"
-date: 'Last update: May 16th, 2023'
+date: 'Last update: June 15th, 2023'
 output:
   html_document: rmdformats::html_clean
 pdf_document: default
 ---
   
-  # Description.
+# Description.
   
-  Population genetic analyses for 162 genomes of X. necrophora from soybean.
+Population genetic analyses for 162 genomes of *Xylaria necrophora* from soybean collected in the southern United States from 2016-2020.
 
 Using code from https://grunwaldlab.github.io/Population_Genetics_in_R/
   
-  And some phylo-geography analyses based on [Shakya et. al. (2021]( https://doi.org/10.1111/mec.16109)
+And some phylo-geography analyses based on [Shakya et. al. (2021]( https://doi.org/10.1111/mec.16109)
 
 # Install and load packages
 
@@ -79,7 +79,7 @@ An example is provided here if the initial installation of SNPRelate fails.
 #BiocManager::install("SNPRelate")
 ```
 
-# Load specific packages needed for analyses (If preferred)
+# Or load specific packages needed for analyses (If preferred)
 
 With these statements we load the specific packages needed for our analyses
 
@@ -111,7 +111,7 @@ Using the R package vcfR, we can read VCF format files into memory using the fun
 We load several files to see the effects of filtering
 
 ```{r}
-vcf1 <- read.vcfR("../input/Xylaria_166_genomes.MinQG30.MinDP2.MaxMiss0.7.recode.Homozygous.recode.recode.vcf.maf.ld.0.1.vcf")
+vcf1 <- read.vcfR("../input/Xylaria_163_genomes.MinQG30.MinDP2.MaxMiss0.7.recode.Homozygous.recode.recode.vcf.maf.ld.0.1.vcf")
 #vcf2 <- read.vcfR("../input/Xylaria_166_genomes.MinQG30.MinDP5.MaxMiss0.7.recode.Homozygous.recode.recode.vcf.maf.ld.0.1.vcf")
 ```
 
@@ -175,10 +175,11 @@ strata(my_genind) <- pop.data2
 my_genind
 ```
 
+# Change ploidy to our genind
 
+Set ploidy to 1 (Haploid)
 
 ```{r}
-#Add ploidy to our genind
 ploidy(my_genind) <- 1
 ```
 
@@ -229,7 +230,6 @@ First, we convert to genlight:
 ```{r}
 gl.necrophora <- gi2gl(my_genind)
 
-
 my_genind.filtered <- genclone2genind(my_genclone.filtered)
 
 gl.necrophora.filtered <- gi2gl(my_genind.filtered)
@@ -257,19 +257,24 @@ ploidy(gl.necrophora.filtered) <- 1
 
 ```
 
-# Calculate Standardized Index of association 
+# Calculate Standardized Index of Association (SIA)
+
+The null hypothesis for these analyses is that the standardized index of association is close to or not significantly different from zero if sexual recombination is common within these populations.
 
 ## Each dataset
 
+Here, we calculate the SIA for each dataset (unfiltered, n=163 and filtered, n=)
 
 ```{r}
 setPop(my_genclone) <- ~Hyp_Final
+
 #Standardized Index of Association for entire dataset
 ia.complete <- ia(my_genclone, sample = 999)
 ia(my_genclone, sample = 999)
 
 
 setPop(my_genclone.filtered) <- ~Hyp_Final
+
 #Standardized Index of Association for entire dataset
 ia.complete <- ia(my_genclone.filtered, sample = 999)
 ia(my_genclone.filtered, sample = 999)
@@ -277,6 +282,8 @@ ia(my_genclone.filtered, sample = 999)
 ```
 
 ## lineage 1
+
+We run the same analysis for lineage 1
 
 ```{r}
 
@@ -294,8 +301,9 @@ ia.lin1 <- ia(Lin1.subpop, sample = 999)
 ia(Lin1.subpop, sample = 999)
 ```
 
-
 ## lineage 2
+
+We run the same analysis for lineage 2
 
 ```{r}
 #Lin 2 Standardized index of association
@@ -323,7 +331,6 @@ Lin3.subpop <- popsub(my_genclone, "Lin3")
 ia.lin3 <- ia(Lin3.subpop, sample = 999)
 ia(Lin3.subpop, sample = 999)
 
-
 #Lin 3 Standardized index of association (Filtered dataset)
 setPop(my_genclone.filtered) <- ~Hyp_Final  
 Lin3.subpop <- popsub(my_genclone.filtered, "Lin3")
@@ -332,17 +339,17 @@ ia(Lin3.subpop, sample = 999)
 ```
 
 
-
+Altogether, these results suggest we should reject the null hypothesis of sexual recombination because all p-values were lower than 0.05.
 
 # Calculate, simulate, and plot Indexes of Association
 
-
+Given that the SIA analyses suggested no sexual recombination, we explored the approach used by [Shakya et. al. (2021]( https://doi.org/10.1111/mec.16109) to compare the index of associations (non-standardized) from simulated sexual, semi-clonal, mostly-clonal, and completly clonal populations to those of *X. necrophora* and its lineages.
 
 ```{r}
 setPop(gl.necrophora) <-  ~Hyp_Final
 ```
-#Full datasets (all lineages)
 
+#Full datasets (all lineages)
 
 ```{r}
 #t <- seppop(gl.necrophora)
@@ -420,7 +427,7 @@ ia.total.colors <- ia.total %>%
 
 
 palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
+#print(palette2_named)
 
 #palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
 #print(palette2_named)
@@ -444,98 +451,7 @@ gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) +
 gg2
 ```
 
-# Same as above for filtered dataset (159 individuals)
-
-```{r}
-#t <- seppop(gl.necrophora)
-t1 <- clonecorrect(as.snpclone(gl.necrophora.filtered))
-#t2 <- clonecorrect(as.snpclone(t$Lin2))
-
-set.seed(100)
-sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
-### Structure (clonal pops)
-clone <- glSim(nInd(t1), n.snp.nonstruc = floor(0.1*nLoc(t1)), n.snp.struc=ceiling(0.9*nLoc(t1)), ploidy=1, LD = T)
-### Semi-clonal 
-semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLoc(t1), ploidy=1, LD=T)
-### Most-clonal 
-most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
-
-## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 400)
-## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 400)
-## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 400)
-## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 400)
-
-ia.filtered <- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 400)
-#ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
-
-
-# Summarizing data frames
-d1 <- data.frame(ia.filtered, rep("xn.filtered", length(ia.filtered)))
-d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
-d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
-d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
-d6 <- data.frame(ia.most, rep("semi-clonal", length(ia.semi)))
-colnames(d1) <- c("ia","dset")
-#colnames(d2) <- c("ia","dset")
-colnames(d3) <- c("ia","dset")
-colnames(d4) <- c("ia","dset")
-colnames(d5) <- c("ia","dset")
-colnames(d6) <- c("ia","dset")
-ia.total <- rbind(d4, d6, d5, d3, d1)
-#ia.total <- rbind(d1, d2, d3, d4, d5)
-
-# Normality tests
-frames <- list(as.data.frame(d1), as.data.frame(d3), as.data.frame(d4), as.data.frame(d5), as.data.frame(d6))
-normality <- list()
-for (i in 1:length(frames)){
-  normality[[i]] <- shapiro.test(frames[[i]][,'ia'])
-}
-
-# Analysis of variance
-anova.ia <- aov(lm(ia ~ dset, ia.total))
-library(agricolae)
-tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
-tukey
-# Kluskal wallis test
-#kruskal.test(ia ~ dset, ia.total), trt="dset")
-k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
-
-# override one of the 'grey' elements using an index by name
-
-ia.total.colors <- ia.total %>%
-  mutate(Color = case_when(
-    startsWith(dset, "clonal") ~ "#FFFFFF",
-    startsWith(dset, "semi") ~ "#C1C1C1",
-    startsWith(dset, "most") ~ "#6D6D6D",
-    endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "red"
-    ))
-
-
-palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
-
-#palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
-#print(palette2_named)
-
-#ia.total <- ia.total[order(ia.total$ia), ] 
-#ia.total <- arrange(ia.total, -ia, dset) 
-
-#Reorder dataset for legend
-ia.total$dset  <- with(ia.total, reorder(dset, -ia))
-
-# Plot
-gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot() + 
-  xlab("Dataset") + ylab("Index of association") + 
-  #scale_fill_grey()
-  scale_fill_manual(values=palette2_named)
-gg2
-```
-# Lineage 1 (Unfiltered)
+### Lineage 1 (Unfiltered)
 
 ```{r}
 setPop(gl.necrophora) <-  ~Hyp_Final
@@ -593,6 +509,7 @@ anova.ia <- aov(lm(ia ~ dset, ia.total))
 library(agricolae)
 tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
 tukey
+
 # Kluskal wallis test
 #kruskal.test(ia ~ dset, ia.total), trt="dset")
 k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
@@ -611,7 +528,7 @@ ia.total.colors <- ia.total %>%
 
 
 palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
+#print(palette2_named)
 
 #palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
 #print(palette2_named)
@@ -630,7 +547,7 @@ gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot(
 gg2
 ```
 
-Lineage 2
+### Lineage 2
 
 ```{r}
 setPop(gl.necrophora) <-~Hyp_Final
@@ -706,7 +623,7 @@ ia.total.colors <- ia.total %>%
 
 
 palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
+#print(palette2_named)
 
 #palette2_named['xn.filtered.maf.lin2'] = '#D95F02'
 #print(palette2_named)
@@ -725,7 +642,7 @@ gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot(
 gg2
 ```
 
-Lineage 3
+## Lineage 3
 
 ```{r}
 setPop(gl.necrophora) <-  ~Hyp_Final
@@ -801,7 +718,7 @@ ia.total.colors <- ia.total %>%
 
 
 palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
+#print(palette2_named)
 
 #palette2_named['xn.filtered.maf.lin3'] = '#D95F02'
 #print(palette2_named)
@@ -820,15 +737,15 @@ gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot(
 gg2
 ```
 
+# Estimating Index of Association for filtered dataset
 
+Same as above for filtered dataset (159 individuals)
 
 
 ```{r}
-setPop(gl.necrophora[[4]]) <-  ~Hyp_Final
-
-t <- seppop(gl.necrophora[[4]])
-t1 <- clonecorrect(as.snpclone(t$Lin1))
-
+#t <- seppop(gl.necrophora)
+t1 <- clonecorrect(as.snpclone(gl.necrophora.filtered))
+#t2 <- clonecorrect(as.snpclone(t$Lin2))
 
 set.seed(100)
 sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
@@ -840,114 +757,20 @@ semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLo
 most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
 
 ## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 200)
+ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 400)
 ## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 200)
+ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 400)
 ## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 200)
+ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 400)
 ## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 200)
+ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 400)
 
-ia.lin1<- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 200)
+ia.filtered <- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 400)
 #ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
 
 
 # Summarizing data frames
-d1 <- data.frame(ia.lin1 , rep("xn.filtered.maf.lin1", length(ia.lin1)))
-d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
-d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
-d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
-d6 <- data.frame(ia.most, rep("semi-clonal", length(ia.semi)))
-colnames(d1) <- c("ia","dset")
-#colnames(d2) <- c("ia","dset")
-colnames(d3) <- c("ia","dset")
-colnames(d4) <- c("ia","dset")
-colnames(d5) <- c("ia","dset")
-colnames(d6) <- c("ia","dset")
-ia.total <- rbind(d4, d6, d5, d3, d1)
-#ia.total <- rbind(d1, d2, d3, d4, d5)
-
-# Normality tests
-frames <- list(as.data.frame(d1), as.data.frame(d3), as.data.frame(d4), as.data.frame(d5), as.data.frame(d6))
-normality <- list()
-for (i in 1:length(frames)){
-  normality[[i]] <- shapiro.test(frames[[i]][,'ia'])
-}
-
-# Analysis of variance
-anova.ia <- aov(lm(ia ~ dset, ia.total))
-library(agricolae)
-tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
-tukey
-# Kluskal wallis test
-#kruskal.test(ia ~ dset, ia.total), trt="dset")
-k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
-
-
-# override one of the 'grey' elements using an index by name
-
-ia.total.colors <- ia.total %>%
-  mutate(Color = case_when(
-    startsWith(dset, "clonal") ~ "#FFFFFF",
-    startsWith(dset, "semi") ~ "#C1C1C1",
-    startsWith(dset, "most") ~ "#6D6D6D",
-    endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "#1B9E77"
-  ))
-
-
-palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
-
-#palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
-#print(palette2_named)
-
-
-#Reorder dataset for legend
-ia.total$dset  <- with(ia.total, reorder(dset, -ia))
-
-# Plot
-gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot() + 
-  xlab("Dataset") + ylab("Index of association") + 
-  #scale_fill_grey()
-  scale_fill_manual(values=palette2_named)
-gg2
-```
-
-
-
-
-```{r}
-setPop(gl.necrophora[[5]]) <-  ~Hyp_Final
-
-t <- seppop(gl.necrophora[[5]])
-t1 <- clonecorrect(as.snpclone(t$Lin1))
-
-
-set.seed(100)
-sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
-### Structure (clonal pops)
-clone <- glSim(nInd(t1), n.snp.nonstruc = floor(0.1*nLoc(t1)), n.snp.struc=ceiling(0.9*nLoc(t1)), ploidy=1, LD = T)
-### Semi-clonal 
-semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLoc(t1), ploidy=1, LD=T)
-### Most-clonal 
-most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
-
-## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 80)
-## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 80)
-## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 80)
-## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 80)
-
-ia.lin1<- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 80)
-#ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
-
-
-# Summarizing data frames
-d1 <- data.frame(ia.lin1 , rep("xn.unfiltered.maf.ld.lin1", length(ia.lin1)))
+d1 <- data.frame(ia.filtered, rep("xn.filtered", length(ia.filtered)))
 d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
 d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
 d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
@@ -985,16 +808,18 @@ ia.total.colors <- ia.total %>%
     startsWith(dset, "semi") ~ "#C1C1C1",
     startsWith(dset, "most") ~ "#6D6D6D",
     endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "#1B9E77"
-  ))
+    startsWith(dset, "xn") ~ "red"
+    ))
 
 
 palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
+#print(palette2_named)
 
 #palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
 #print(palette2_named)
 
+#ia.total <- ia.total[order(ia.total$ia), ] 
+#ia.total <- arrange(ia.total, -ia, dset) 
 
 #Reorder dataset for legend
 ia.total$dset  <- with(ia.total, reorder(dset, -ia))
@@ -1007,283 +832,3 @@ gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot(
 gg2
 ```
 
-
-
-
-```{r}
-setPop(gl.necrophora[[5]]) <-  ~Hyp_Final
-
-t <- seppop(gl.necrophora[[5]])
-t1 <- clonecorrect(as.snpclone(t$Lin2))
-
-
-set.seed(100)
-sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
-### Structure (clonal pops)
-clone <- glSim(nInd(t1), n.snp.nonstruc = floor(0.1*nLoc(t1)), n.snp.struc=ceiling(0.9*nLoc(t1)), ploidy=1, LD = T)
-### Semi-clonal 
-semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLoc(t1), ploidy=1, LD=T)
-### Most-clonal 
-most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
-
-## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 80)
-## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 80)
-## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 80)
-## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 80)
-
-ia.lin2<- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 80)
-#ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
-
-
-# Summarizing data frames
-d1 <- data.frame(ia.lin2 , rep("xn.unfiltered.maf.ld.lin2", length(ia.lin2)))
-d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
-d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
-d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
-d6 <- data.frame(ia.most, rep("semi-clonal", length(ia.semi)))
-colnames(d1) <- c("ia","dset")
-#colnames(d2) <- c("ia","dset")
-colnames(d3) <- c("ia","dset")
-colnames(d4) <- c("ia","dset")
-colnames(d5) <- c("ia","dset")
-colnames(d6) <- c("ia","dset")
-ia.total <- rbind(d4, d6, d5, d3, d1)
-#ia.total <- rbind(d1, d2, d3, d4, d5)
-
-# Normality tests
-frames <- list(as.data.frame(d1), as.data.frame(d3), as.data.frame(d4), as.data.frame(d5), as.data.frame(d6))
-normality <- list()
-for (i in 1:length(frames)){
-  normality[[i]] <- shapiro.test(frames[[i]][,'ia'])
-}
-
-# Analysis of variance
-anova.ia <- aov(lm(ia ~ dset, ia.total))
-library(agricolae)
-tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
-tukey
-# Kluskal wallis test
-#kruskal.test(ia ~ dset, ia.total), trt="dset")
-k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
-
-# override one of the 'grey' elements using an index by name
-
-ia.total.colors <- ia.total %>%
-  mutate(Color = case_when(
-    startsWith(dset, "clonal") ~ "#FFFFFF",
-    startsWith(dset, "semi") ~ "#C1C1C1",
-    startsWith(dset, "most") ~ "#6D6D6D",
-    endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "#D95F02"
-  ))
-
-
-palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
-
-#palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
-#print(palette2_named)
-
-
-#Reorder dataset for legend
-ia.total$dset  <- with(ia.total, reorder(dset, -ia))
-
-# Plot
-gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot() + 
-  xlab("Dataset") + ylab("Index of association") + 
-  #scale_fill_grey()
-  scale_fill_manual(values=palette2_named)
-gg2
-```
-
-
-
-```{r}
-setPop(gl.necrophora[[5]]) <-  ~Hyp_Final
-
-t <- seppop(gl.necrophora[[5]])
-t1 <- clonecorrect(as.snpclone(t$Lin3))
-
-
-set.seed(100)
-sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
-### Structure (clonal pops)
-clone <- glSim(nInd(t1), n.snp.nonstruc = floor(0.1*nLoc(t1)), n.snp.struc=ceiling(0.9*nLoc(t1)), ploidy=1, LD = T)
-### Semi-clonal 
-semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLoc(t1), ploidy=1, LD=T)
-### Most-clonal 
-most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
-
-## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 80)
-## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 80)
-## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 80)
-## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 80)
-
-ia.lin3<- samp.ia(t1,  reps = 1000, quiet = T, n.snp = 80)
-#ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
-
-
-# Summarizing data frames
-d1 <- data.frame(ia.lin3 , rep("xn.unfiltered.maf.ld.lin3", length(ia.lin3)))
-d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
-d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
-d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
-d6 <- data.frame(ia.most, rep("semi-clonal", length(ia.semi)))
-colnames(d1) <- c("ia","dset")
-#colnames(d2) <- c("ia","dset")
-colnames(d3) <- c("ia","dset")
-colnames(d4) <- c("ia","dset")
-colnames(d5) <- c("ia","dset")
-colnames(d6) <- c("ia","dset")
-ia.total <- rbind(d4, d6, d5, d3, d1)
-#ia.total <- rbind(d1, d2, d3, d4, d5)
-
-# Normality tests
-frames <- list(as.data.frame(d1), as.data.frame(d3), as.data.frame(d4), as.data.frame(d5), as.data.frame(d6))
-normality <- list()
-for (i in 1:length(frames)){
-  normality[[i]] <- shapiro.test(frames[[i]][,'ia'])
-}
-
-# Analysis of variance
-anova.ia <- aov(lm(ia ~ dset, ia.total))
-library(agricolae)
-tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
-tukey
-# Kluskal wallis test
-#kruskal.test(ia ~ dset, ia.total), trt="dset")
-k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
-
-# override one of the 'grey' elements using an index by name
-
-ia.total.colors <- ia.total %>%
-  mutate(Color = case_when(
-    startsWith(dset, "clonal") ~ "#FFFFFF",
-    startsWith(dset, "semi") ~ "#C1C1C1",
-    startsWith(dset, "most") ~ "#6D6D6D",
-    endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "#7570B3"
-  ))
-
-
-palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
-
-#palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
-#print(palette2_named)
-
-
-#Reorder dataset for legend
-ia.total$dset  <- with(ia.total, reorder(dset, -ia))
-
-# Plot
-gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot() + 
-  xlab("Dataset") + ylab("Index of association") + 
-  #scale_fill_grey()
-  scale_fill_manual(values=palette2_named)
-gg2
-```
-
-
-
-
-
-
-```{r}
-setPop(gl.necrophora[[6]]) <-  ~Hyp_Final
-
-t <- seppop(gl.necrophora[[6]])
-t1 <- clonecorrect(as.snpclone(t$Lin1))
-
-
-set.seed(100)
-sex <- glSim(n.ind = nInd(t1), n.snp.nonstruc = ceiling(0.9*nLoc(t1)), n.snp.struc = floor(0.1*nLoc(t1)), ploidy=1, LD=TRUE)
-### Structure (clonal pops)
-clone <- glSim(nInd(t1), n.snp.nonstruc = floor(0.1*nLoc(t1)), n.snp.struc=ceiling(0.9*nLoc(t1)), ploidy=1, LD = T)
-### Semi-clonal 
-semi_clone <- glSim(nInd(t1),n.snp.nonstruc = 0.5*nLoc(t1), n.snp.struc= 0.5*nLoc(t1), ploidy=1, LD=T)
-### Most-clonal 
-most_clone <- glSim(nInd(t1), n.snp.nonstruc = ceiling(nLoc(t1)/3), n.snp.struc=2*nLoc(t1)/3, ploidy=1, LD=T)
-
-## IA sex
-ia.sex <- samp.ia(sex,quiet = T, reps = 1000, n.snp = 80)
-## IA clone
-ia.clone <- samp.ia(clone, quiet = T, reps = 1000, n.snp = 80)
-## IA.semiclone
-ia.semi <- samp.ia(semi_clone, quiet = T,reps = 1000, n.snp = 80)
-## IA.mostclone
-ia.most <- samp.ia(most_clone, quiet = T, reps = 1000, n.snp = 80)
-
-ia.lin1<- samp.ia(t1,  reps = 100, quiet = T, n.snp = 80)
-#ia.lin2 <- samp.ia(t2,  reps = 100, quiet = T, n.snp = 300)
-
-
-# Summarizing data frames
-d1 <- data.frame(ia.lin1 , rep("xn.filtered.maf.ld.lin1", length(ia.lin1)))
-d3 <- data.frame(ia.sex, rep("sexual", length(ia.sex)))
-d4 <- data.frame(ia.clone, rep("clonal", length(ia.clone)))
-d5 <- data.frame(ia.semi, rep("most-clonal", length(ia.semi)))
-d6 <- data.frame(ia.most, rep("semi-clonal", length(ia.semi)))
-colnames(d1) <- c("ia","dset")
-#colnames(d2) <- c("ia","dset")
-colnames(d3) <- c("ia","dset")
-colnames(d4) <- c("ia","dset")
-colnames(d5) <- c("ia","dset")
-colnames(d6) <- c("ia","dset")
-ia.total <- rbind(d4, d6, d5, d3, d1)
-#ia.total <- rbind(d1, d2, d3, d4, d5)
-
-# Normality tests
-frames <- list(as.data.frame(d1), as.data.frame(d3), as.data.frame(d4), as.data.frame(d5), as.data.frame(d6))
-normality <- list()
-for (i in 1:length(frames)){
-  normality[[i]] <- shapiro.test(frames[[i]][,'ia'])
-}
-
-# Analysis of variance
-anova.ia <- aov(lm(ia ~ dset, ia.total))
-library(agricolae)
-tukey <- HSD.test(anova.ia, "dset", alpha = 0.001)
-tukey
-# Kluskal wallis test
-#kruskal.test(ia ~ dset, ia.total), trt="dset")
-k.test <- with(ia.total, kruskal(ia, dset, group = T, p.adj = "bon"))
-
-
-# override one of the 'grey' elements using an index by name
-
-ia.total.colors <- ia.total %>%
-  mutate(Color = case_when(
-    startsWith(dset, "clonal") ~ "#FFFFFF",
-    startsWith(dset, "semi") ~ "#C1C1C1",
-    startsWith(dset, "most") ~ "#6D6D6D",
-    endsWith(dset, "sexual") ~ "#1E1E1E",
-    startsWith(dset, "xn") ~ "#1B9E77"
-  ))
-
-
-palette2_named = setNames(object = ia.total.colors$Color, nm = ia.total$dset)
-print(palette2_named)
-
-#palette2_named['xn.unfiltered.maf.lin1'] = '#1B9E77'
-#print(palette2_named)
-
-
-#Reorder dataset for legend
-ia.total$dset  <- with(ia.total, reorder(dset, -ia))
-
-# Plot
-gg2 <- ggplot(ia.total,aes(x=reorder(dset,-ia), y=ia,fill=dset)) + geom_boxplot() + 
-  xlab("Dataset") + ylab("Index of association") + 
-  #scale_fill_grey()
-  scale_fill_manual(values=palette2_named)
-gg2
-```

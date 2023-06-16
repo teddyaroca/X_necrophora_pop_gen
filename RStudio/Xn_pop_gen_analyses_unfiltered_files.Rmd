@@ -106,7 +106,7 @@ setwd("~/Dropbox/work/AssistantProfessorUNL/manuscripts/drafts/X.necrophoraPopGe
 Using the R package vcfR, we can read VCF format files into memory using the function read.vcfR(). Once in memory we can use the head() method to summarize the information in the three VCF regions.
 
 ```{r}
-vcf <- read.vcfR("../input/Xn_153_genomes.MinQG40.MinDP5.MaxMiss0.7.recode.Homozygous.recode.cleaned.maf.ld.vcf")
+vcf <- read.vcfR("../input/Xn_153_genomes.MinQG30.MinDP5.MaxMiss0.7.recode.Homozygous.recode.cleaned.maf.ld.vcf")
 ```
 
 In this case, our file has 83542 variants. Now, let's print the first few lines to ensure our dataset is in the desired format.
