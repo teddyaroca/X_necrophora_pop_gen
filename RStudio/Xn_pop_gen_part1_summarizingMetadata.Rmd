@@ -1,0 +1,85 @@
+---
+title: "Population genomic analyses of <i>Xylaria necrophora</i> from southern USA | Part 1: Summarizing metadata"
+author: "Teddy Garcia-Aroca"
+date: 'Last update: June 19th, 2023'
+output:
+  html_document: rmdformats::html_clean
+pdf_document: default
+
+bibliography: references.bib
+link-citations: true
+---
+
+# Summarizing metadata for 175 specimes sequenced in current study
+
+In the current study, a total of 175 specimens, including 166 *X. necrophora* (4 historical and 162 comtemporary) and 13 specimens from several *Xylaria* spp. were sequenced.
+
+## Load packages
+
+For this analysis, we only need the dplyr or tidyverse packages.
+
+```{r}
+library(dplyr)
+```
+
+## Load metadata
+  
+```{r}
+metadata <- read.csv("../metadata/Xylaria_175_genomes.popdata.Updated.10.30.2022.csv", header = T)
+```
+
+This dataset should contain the 175 specimens sequenced in the current study.
+
+```{r}
+length(metadata$No)
+```
+
+Let's summarize data by country and state
+
+```{r}
+table1 <- metadata %>% 
+  dplyr::group_by(Country, State, Species) %>% 
+  dplyr::summarise(count = n()) 
+table1
+```
+
+This is **TABLE 1** in the manuscript.
+
+```{r}
+write.csv(table1, "../output/tables/Table1.summaryOfSpecimensSequenced.csv")
+```
+
+## Extract *X. necrophora* metadata
+
+To summarize *X. necrophora* metadata only, we extract the metadata associated with the species: 
+
+```{r}
+metadata.necrophora <- subset(metadata, Species == "Xylaria necrophora")
+```
+
+We should see a total of 166 specimens in this dataset
+
+```{r}
+length(metadata.necrophora$No)
+```
+
+Now, let's extract the contemporary *X. necrophora* specimens only, since these represent the soybean population plus a specimen collected in the island of Martinique in 2005. We call this object `metadata.necrophora.contemp`
+
+```{r}
+metadata.necrophora.contemp <- subset(metadata.necrophora, Species_Type == "X.necrophora_Contemp")
+```
+
+This object should contain 162 individuals
+
+```{r}
+length(metadata.necrophora.contemp$No)
+```
+
+Now we summarize again.
+
+```{r}
+metadata.necrophora.contemp %>% 
+  dplyr::group_by(Country, State, Species) %>% 
+  dplyr::summarise(count = n()) 
+```
+
