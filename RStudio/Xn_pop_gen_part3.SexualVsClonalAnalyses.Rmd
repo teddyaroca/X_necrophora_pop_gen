@@ -1,5 +1,5 @@
 ---
-  title: "Population genomic analyses of <i>Xylaria necrophora</i> from southern USA"
+title: "Population genomic analyses of <i>Xylaria necrophora</i> from southern USA | Part 3: Sexual vs Clonal Analyses"
 author: "Teddy Garcia-Aroca"
 date: 'Last update: June 15th, 2023'
 output:
@@ -11,9 +11,9 @@ pdf_document: default
   
 Population genetic analyses for 162 genomes of *Xylaria necrophora* from soybean collected in the southern United States from 2016-2020.
 
-Using code from https://grunwaldlab.github.io/Population_Genetics_in_R/
+Using reasoning and code from https://grunwaldlab.github.io/Population_Genetics_in_R/
   
-And some phylo-geography analyses based on [Shakya et. al. (2021]( https://doi.org/10.1111/mec.16109)
+And some phylo-geography analyses based on [Shakya et. al. (2021)]( https://doi.org/10.1111/mec.16109)
 
 # Install and load packages
 
@@ -115,15 +115,6 @@ vcf1 <- read.vcfR("../input/Xylaria_163_genomes.MinQG30.MinDP2.MaxMiss0.7.recode
 #vcf2 <- read.vcfR("../input/Xylaria_166_genomes.MinQG30.MinDP5.MaxMiss0.7.recode.Homozygous.recode.recode.vcf.maf.ld.0.1.vcf")
 ```
 
-Now, we create a vector containing all datasets
-
-```{r}
-#vcf.list <- list(vcf1, vcf2)
-```
-
-
-## Run function to convert to genind object
-
 ### Convert to genind
 
 Now, we convert our vcf object into a genind object for further analyses.
@@ -144,7 +135,7 @@ Now, lets check the number of individuals in this object:
 nInd(my_genind)
 ```
 
-As you see, this object has a total of 163 genotypes (All necrophora), and we have filtered out some individuals with more than 70% missing data using vcf tools (see materials and methods).
+As you see, this object has a total of 163 genotypes (all necrophora), 162 *X. necrophora* comtemporary (161 from soybean + one from forests in the island of Martinique) + one historical specimen from sugarcane found in Louisiana in 1938 [Garcia-Aroca et al. (2021)](https://doi.org/10.1080/00275514.2020.1846965). Some individuals were filtered out in this vcf file  on the bases of missing data (more than 70% missing data) with vcftools (see materials and methods).
 
 The following code block extracts names from our genind to match with values in our metadata file with the ultimate goal of adding strata to our genind and genclone objects.
 
@@ -160,7 +151,7 @@ If loading a vcf files with 175 genotypes (complete dataset), check that all the
 
 ```>all(colnames(vcf@gt)[-1] == pop.data$No)```
 
-However, our current dataset contains 153 X. necrophora strains only.
+However, our current dataset contains 163 X. necrophora strains only.
 
 ```{r}
 # Add pop data to each object in our list of geninds (has to be done separately as each may have a different number of individuals)
@@ -219,11 +210,15 @@ Now, let's filter out genotypes with more than 90% missing data
 my_genclone.filtered <- missingno(my_genclone, type = "geno", cutoff = 0.9, quiet = FALSE, freq = FALSE)
 ```
 
+Four genotypes were removed on the basis of missing data, including a historical specimen from Louisiana collected in 1938 on sugarcane. This is expected since the quality genotypes from these historical specimens was not expected to be high.
+
 ```{r}
 my_genclone %>% missingno("geno", cutoff = 0.9) %>% info_table(plot = TRUE, scale = FALSE)
 ```
 
-Since we removed missing data over 90% was found, we move on to the analyses:
+Since we removed individuals with missing data over 90% was found, we now have two datasets: "unfiltered" dataset with all 163 individials, meaning this is the dataset that was not further filtered in R (only filtered in vcf tools) and one "filtered" dataset with 159 individuals after removing individual genotypes with more than 90% missing data.
+
+Now, we can move on to the analyses.
 
 First, we convert to genlight:
 

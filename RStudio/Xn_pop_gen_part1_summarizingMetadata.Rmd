@@ -5,14 +5,11 @@ date: 'Last update: June 19th, 2023'
 output:
   html_document: rmdformats::html_clean
 pdf_document: default
-
-bibliography: references.bib
-link-citations: true
 ---
 
 # Summarizing metadata for 175 specimes sequenced in current study
 
-In the current study, a total of 175 specimens, including 166 *X. necrophora* (4 historical and 162 comtemporary) and 13 specimens from several *Xylaria* spp. were sequenced.
+In the current study, a total of 175 specimens, including 166 *X. necrophora* (4 historical and 162 comtemporary) [Garcia-Aroca et al. (2021)](https://doi.org/10.1080/00275514.2020.1846965), and 13 specimens from several *Xylaria* spp. were sequenced.
 
 ## Load packages
 
@@ -63,7 +60,7 @@ We should see a total of 166 specimens in this dataset
 length(metadata.necrophora$No)
 ```
 
-Now, let's extract the contemporary *X. necrophora* specimens only, since these represent the soybean population plus a specimen collected in the island of Martinique in 2005. We call this object `metadata.necrophora.contemp`
+Now, let's extract the contemporary *X. necrophora* specimens only, since these represent the soybean population plus a specimen collected in the island of Martinique in 2005 [Garcia-Aroca et al. (2021)](https://doi.org/10.1080/00275514.2020.1846965). We call this object `metadata.necrophora.contemp`
 
 ```{r}
 metadata.necrophora.contemp <- subset(metadata.necrophora, Species_Type == "X.necrophora_Contemp")
@@ -83,3 +80,10 @@ metadata.necrophora.contemp %>%
   dplyr::summarise(count = n()) 
 ```
 
+## Write the entire metadata dataset as Supp Table 1
+
+We write the entire dataset as Supp Table 1
+
+```{r}
+write.csv(metadata, "../output/tables/Supp.TableS1.completeMetadata.csv")
+```
